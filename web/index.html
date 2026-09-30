@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hán Ngữ Server — Học tiếng Trung tại nhà</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">📚 Hán Ngữ Server</div>
+    <nav id="tabs" class="tabs" aria-label="Điều hướng">
+      <button class="tab active" data-tab="home">🏠 Hôm nay</button>
+      <button class="tab" data-tab="vocab">🈶 Từ vựng</button>
+      <button class="tab" data-tab="video">🎬 Video</button>
+      <button class="tab" data-tab="shadow">🎙️ Shadowing</button>
+      <button class="tab" data-tab="dictation">👂 Nghe chép</button>
+      <button class="tab" data-tab="translate">🔁 Dịch</button>
+      <button class="tab" data-tab="pronun">🗣️ Phát âm</button>
+      <button class="tab" data-tab="history">🕘 Lịch sử</button>
+      <button class="tab" data-tab="settings">⚙️ Cài đặt</button>
+    </nav>
+  </header>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <main class="content">
+    <!-- ============ HÔM NAY ============ -->
+    <section id="tab-home" class="panel active">
+      <h2>Hôm nay của bạn</h2>
+      <div id="dash-summary" class="cards"><p class="muted">Đang tải...</p></div>
+      <div class="row">
+        <label>Phút học: <input id="sess-minutes" type="number" min="1" value="20" class="w-sm"></label>
+        <button id="btn-log-session" class="btn primary">Ghi nhận buổi học</button>
+      </div>
+    </section>
+
+    <!-- ============ TỪ VỰNG ============ -->
+    <section id="tab-vocab" class="panel">
+      <h2>Từ vựng</h2>
+      <div class="subnav">
+        <button class="subtab active" data-sub="list">📋 Danh sách</button>
+        <button class="subtab" data-sub="flash">🃏 Flashcard</button>
+      </div>
+
+      <div id="vocab-list">
+        <div class="card">
+          <h3>Thêm từ mới</h3>
+          <div class="grid2">
+            <input id="v-hanzi" placeholder="Chữ Hán (ví dụ: 你好)">
+            <input id="v-pinyin" placeholder="Pinyin (ví dụ: nǐ hǎo)">
+            <input id="v-vi" placeholder="Nghĩa tiếng Việt">
+            <input id="v-hsk" type="number" min="1" max="9" placeholder="HSK (1-9, tùy chọn)">
+          </div>
+          <button id="btn-v-add" class="btn primary">➕ Thêm từ</button>
+        </div>
+        <div class="card">
+          <h3>Danh sách từ</h3>
+          <div class="row">
+            <input id="v-search" placeholder="Tìm từ...">
+            <button id="btn-v-search" class="btn">🔍 Tìm</button>
+          </div>
+          <table class="tbl"><thead><tr>
+            <th>Chữ Hán</th><th>Pinyin</th><th>Nghĩa</th><th>HSK</th><th>Thao tác</th>
+          </tr></thead><tbody id="vocab-tbody"><tr><td colspan="5" class="muted">Đang tải...</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <div id="vocab-flash" hidden>
+        <div class="card">
+          <h3>Flashcard</h3>
+          <button id="btn-flash-new" class="btn">🔀 Lấy thẻ mới</button>
+          <div id="flash-card" class="flashcard" tabindex="0" title="Nhấn để lật thẻ">
+            <div id="flash-front" class="flash-face">—</div>
+            <div id="flash-back" class="flash-face" hidden>—</div>
+          </div>
+          <div id="flash-rate" class="row" hidden>
+            <span>Mức độ nhớ:</span>
+            <div id="flash-grade-btns">
+              <button class="btn grade" data-g="0">0</button>
+              <button class="btn grade" data-g="1">1</button>
+              <button class="btn grade" data-g="2">2</button>
+              <button class="btn grade" data-g="3">3</button>
+              <button class="btn grade" data-g="4">4</button>
+              <button class="btn grade" data-g="5">5</button>
+            </div>
+          </div>
+          <p class="muted">Chạm vào thẻ để lật: Chữ Hán → Pinyin → Nghĩa. 0 = quên hẳn, 5 = nhớ rất rõ.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIDEO ============ -->
+    <section id="tab-video" class="panel">
+      <h2>Học qua video</h2>
+      <div class="card">
+        <h3>Tải video lên</h3>
+        <div class="row">
+          <input id="video-file" type="file" accept="video/*">
+          <button id="btn-video-upload" class="btn primary">⬆️ Tải lên &amp; xử lý</button>
+        </div>
+        <p class="muted">Video được xử lý trên máy của bạn (tách câu, pinyin, dịch). Xử lý có thể mất vài phút.</p>
+      </div>
+      <div class="card">
+        <h3>Tiến trình xử lý</h3>
+        <div id="video-jobs"><p class="muted">Chưa có job nào.</p></div>
+      </div>
+      <div class="card">
+        <h3>Bài học từ video</h3>
+        <div id="video-lessons"><p class="muted">Đang tải...</p></div>
+      </div>
+      <div class="card" id="video-player-card" hidden>
+        <h3 id="video-title">—</h3>
+        <video id="video-player" controls class="video-player"></video>
+        <div class="row">
+          <label><input type="checkbox" id="opt-pinyin" checked> Hiện Pinyin</label>
+          <label><input type="checkbox" id="opt-viet" checked> Hiện nghĩa Việt</label>
+        </div>
+        <div id="video-segments"></div>
+      </div>
+    </section>
+
+    <!-- ============ SHADOWING ============ -->
+    <section id="tab-shadow" class="panel">
+      <h2>Shadowing (nhại giọng)</h2>
+      <div class="card">
+        <h3>Tạo phiên luyện tập</h3>
+        <div class="row">
+          <input id="shadow-text" placeholder="Câu tiếng Trung để nhại (ví dụ: 你今天过得怎么样？)">
+          <button id="btn-shadow-new" class="btn primary">▶️ Bắt đầu phiên</button>
+        </div>
+        <p id="shadow-target" class="shadow-target muted">Chưa có câu mẫu.</p>
+      </div>
+      <div class="card">
+        <h3>Thu âm giọng của bạn</h3>
+        <div class="row">
+          <button id="btn-rec-start" class="btn">⏺️ Bắt đầu thu</button>
+          <button id="btn-rec-stop" class="btn" disabled>⏹️ Dừng</button>
+          <button id="btn-rec-upload" class="btn primary" disabled>⬆️ Gửi bản thu</button>
+        </div>
+        <audio id="rec-preview" controls hidden class="w-full"></audio>
+        <p class="muted" id="rec-status">Nhấn "Bắt đầu thu" rồi đọc câu mẫu.</p>
+      </div>
+      <div class="card">
+        <h3>Các bản thu gần đây</h3>
+        <div id="shadow-recordings"><p class="muted">Chưa có.</p></div>
+      </div>
+    </section>
+
+    <!-- ============ NGHE CHÉP ============ -->
+    <section id="tab-dictation" class="panel">
+      <h2>Nghe chép chính tả</h2>
+      <div class="card">
+        <button id="btn-dict-new" class="btn primary">🎲 Lấy bài tập mới</button>
+        <div id="dict-exercise" hidden>
+          <p><button id="btn-dict-play" class="btn">🔊 Phát audio</button>
+             <audio id="dict-audio" controls hidden></audio></p>
+          <label>Câu bạn nghe được:<br>
+            <textarea id="dict-input" rows="2" class="w-full" placeholder="Gõ lại câu tiếng Trung bạn nghe được..."></textarea>
+          </label>
+          <p><button id="btn-dict-submit" class="btn primary">✅ Chấm bài</button></p>
+          <div id="dict-result"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DỊCH ============ -->
+    <section id="tab-translate" class="panel">
+      <h2>Luyện dịch</h2>
+      <div class="card">
+        <div class="subnav">
+          <button class="subtab active" data-sub="vt">🇻🇳 Việt → Trung</button>
+          <button class="subtab" data-sub="tv">🇨🇳 Trung → Việt</button>
+        </div>
+        <div id="tr-vt">
+          <label>Câu tiếng Việt của bạn:<br>
+            <textarea id="tr-vt-input" rows="3" class="w-full" placeholder="Nhập câu tiếng Việt cần dịch sang tiếng Trung..."></textarea></label>
+          <p><button id="btn-tr-vt" class="btn primary">Dịch &amp; chấm</button></p>
+          <label>Bài dịch tiếng Trung của bạn (để chấm):<br>
+            <textarea id="tr-vt-answer" rows="3" class="w-full" placeholder="Nhập bản dịch tiếng Trung của bạn (tùy chọn)..."></textarea></label>
+        </div>
+        <div id="tr-tv" hidden>
+          <label>Câu tiếng Trung của bạn:<br>
+            <textarea id="tr-tv-input" rows="3" class="w-full" placeholder="Nhập câu tiếng Trung cần dịch sang tiếng Việt..."></textarea></label>
+          <p><button id="btn-tr-tv" class="btn primary">Dịch &amp; chấm</button></p>
+          <label>Bài dịch tiếng Việt của bạn (để chấm):<br>
+            <textarea id="tr-tv-answer" rows="3" class="w-full" placeholder="Nhập bản dịch tiếng Việt của bạn (tùy chọn)..."></textarea></label>
+        </div>
+        <div id="tr-result"></div>
+      </div>
+    </section>
+
+    <!-- ============ PHÁT ÂM ============ -->
+    <section id="tab-pronun" class="panel">
+      <h2>Phân tích phát âm</h2>
+      <div class="card">
+        <label>Câu cần luyện:<br>
+          <input id="pron-text" class="w-full" placeholder="Nhập câu tiếng Trung bạn muốn kiểm tra phát âm..."></label>
+        <div class="row">
+          <button id="btn-pron-start" class="btn">⏺️ Thu âm</button>
+          <button id="btn-pron-stop" class="btn" disabled>⏹️ Dừng</button>
+          <button id="btn-pron-analyze" class="btn primary" disabled>🔍 Phân tích</button>
+        </div>
+        <audio id="pron-preview" controls hidden class="w-full"></audio>
+        <p class="muted">Thu âm giọng đọc của bạn, app sẽ so sánh với câu mẫu.</p>
+      </div>
+      <div class="card">
+        <h3>Kết quả phân tích</h3>
+        <div id="pron-result"><p class="muted">Chưa có kết quả.</p></div>
+      </div>
+    </section>
+
+    <!-- ============ LỊCH SỬ ============ -->
+    <section id="tab-history" class="panel">
+      <h2>Lịch sử học tập</h2>
+      <div class="subnav">
+        <button class="subtab active" data-sub="ex">📝 Bài tập</button>
+        <button class="subtab" data-sub="dic">👂 Nghe chép</button>
+        <button class="subtab" data-sub="job">🎬 Job video</button>
+      </div>
+      <div id="hist-ex"><p class="muted">Đang tải...</p></div>
+      <div id="hist-dic" hidden><p class="muted">Đang tải...</p></div>
+      <div id="hist-job" hidden><p class="muted">Đang tải...</p></div>
+    </section>
+
+    <!-- ============ CÀI ĐẶT ============ -->
+    <section id="tab-settings" class="panel">
+      <h2>Cài đặt</h2>
+      <div class="card">
+        <h3>Trạng thái hệ thống</h3>
+        <div id="health-box"><p class="muted">Đang kiểm tra...</p></div>
+        <button id="btn-health" class="btn">🔄 Kiểm tra lại</button>
+      </div>
+      <div class="card">
+        <h3>Kết nối máy AI (Qwen)</h3>
+        <div class="grid2">
+          <label>QWEN_BASE_URL<br><input id="set-qwen-url"></label>
+          <label>QWEN_MODEL<br><input id="set-qwen-model"></label>
+        </div>
+        <h3>Máy chủ ứng dụng</h3>
+        <div class="grid2">
+          <label>HOST<br><input id="set-host"></label>
+          <label>PORT<br><input id="set-port" type="number"></label>
+        </div>
+        <button id="btn-settings-save" class="btn primary">💾 Lưu cài đặt</button>
+        <p class="muted">Đổi host/port cần khởi động lại app (chạy lại START_APP.bat).</p>
+      </div>
+      <div class="card">
+        <h3>Sao lưu &amp; di chuyển dữ liệu</h3>
+        <div class="row">
+          <button id="btn-backup" class="btn">💾 Sao lưu ngay</button>
+          <button id="btn-verify" class="btn">✔️ Kiểm tra migration</button>
+        </div>
+        <div id="backup-result"></div>
+        <p class="muted">Sao lưu tạo file .zip trong thư mục data/backups.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><span class="muted">Hán Ngữ Server — chạy trên máy của bạn, dữ liệu không rời khỏi nhà.</span></footer>
+</div>
+
+<!-- Hộp sửa từ vựng -->
+<div id="modal" class="modal" hidden>
+  <div class="modal-box">
+    <h3>Sửa từ vựng</h3>
+    <div class="grid2">
+      <label>Chữ Hán<br><input id="m-hanzi"></label>
+      <label>Pinyin<br><input id="m-pinyin"></label>
+      <label>Nghĩa<br><input id="m-vi"></label>
+      <label>HSK<br><input id="m-hsk" type="number" min="1" max="9"></label>
+    </div>
+    <div class="row">
+      <button id="btn-modal-save" class="btn primary">Lưu</button>
+      <button id="btn-modal-cancel" class="btn">Hủy</button>
+    </div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
