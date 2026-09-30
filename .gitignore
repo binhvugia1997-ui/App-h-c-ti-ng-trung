@@ -1,0 +1,29 @@
+# .gitignore — Hán Ngữ Server
+
+# User data (không commit — được backup/migration riêng)
+data/
+*.db
+*.db-journal
+
+# Config bí mật của máy (dùng .env.example làm mẫu)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Backup / migration output (tạo lúc chạy)
+/backups/
+/migration-output/
+hanngu-backup-*.zip
+hanngu-migration-*/
+
+# Log
+*.log
+
+# Media tạm / hệ điều hành
+.DS_Store
+Thumbs.db
